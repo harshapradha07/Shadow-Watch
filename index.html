@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ShadowWatch — Know when your data leaks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Poppins',sans-serif}</style>
+
+</head>
+<body class="dark">
+  <header class="site-header">
+    <div class="logo">
+      <!-- Simple SVG logo -->
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2L3 6v5c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V6l-9-4z" fill="#0ea5e9"/>
+        <path d="M9 11c0 1.7 1.3 3 3 3s3-1.3 3-3" stroke="#0b7285" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand">ShadowWatch</span>
+    </div>
+    <nav class="nav">
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="login.html" class="btn-outline">Sign in</a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <div class="hero-inner">
+      <h1>Know when your data leaks before it hurts you.</h1>
+      <p class="lead">ShadowWatch continuously monitors breach sources and the dark web, then alerts you instantly with clear visual insights.</p>
+      <div class="hero-cta">
+        <a href="login.html" class="btn-primary">Get Started</a>
+        <a href="dashboard.html" class="btn-ghost">View Demo Dashboard</a>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <strong>Real-time alerts</strong>
+          <span>Instant notifications when leaks appear</span>
+        </div>
+        <div class="feature">
+          <strong>Visual insights</strong>
+          <span>Charts to show breach trends and affected data</span>
+        </div>
+        <div class="feature">
+          <strong>Privacy-first</strong>
+          <span>Minimal demo data stored locally (prototype)</span>
+        </div>
+      </div>
+    </div>
+    <aside class="hero-visual">
+      <!-- small mock dashboard preview -->
+      <div class="mock-dashboard">
+        <div class="mock-header">Latest Alerts</div>
+        <ul>
+          <li><strong>3 new</strong> leaked emails</li>
+          <li><strong>1</strong> exposed password</li>
+          <li><strong>Top source:</strong> paste site</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <small>© 2025 ShadowWatch • Built for Mumbai Hack 2025</small>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

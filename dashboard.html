@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard — ShadowWatch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>body{font-family:'Poppins',sans-serif}</style>
+</head>
+<body class="bg-[#071028] text-slate-100 min-h-screen">
+  <header class="max-w-6xl mx-auto p-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg class="w-10 h-10 text-cyan-400" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v5c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V6l-9-4z" fill="#06b6d4"/></svg>
+      <div>
+        <div class="text-xl font-semibold">ShadowWatch</div>
+        <div class="text-sm text-slate-400">Know when your data leaks before it hurts you</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div id="userEmail" class="text-slate-300"></div>
+      <button id="logout" class="px-3 py-2 rounded bg-slate-700 hover:bg-slate-600">Logout</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left: controls -->
+    <section class="lg:col-span-1 space-y-4">
+      <div class="p-4 bg-slate-800 rounded-lg">
+        <h3 class="font-medium">Threat Detection</h3>
+        <div class="mt-3 flex items-center gap-3">
+          <div class="text-4xl font-bold" id="level">--</div>
+          <div class="text-sm text-slate-400">Current detection level</div>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <button id="runCheck" class="flex-1 py-2 rounded bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-900">Run Check</button>
+          <button id="dailyToggle" class="py-2 px-3 rounded bg-slate-700">Daily</button>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-800 rounded-lg">
+        <h4 class="font-medium">Quick Scan</h4>
+        <div class="mt-3 flex gap-2">
+          <input id="scanEmail" placeholder="email@example.com" class="flex-1 p-2 rounded bg-slate-900 border border-slate-700"/>
+          <button id="scanBtn" class="px-4 py-2 rounded bg-blue-600">Scan</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Middle: main feed -->
+    <section class="lg:col-span-2 space-y-4">
+      <div class="p-4 bg-slate-800 rounded-lg">
+        <h3 class="font-medium">Recent Alerts</h3>
+        <ul id="alertsList" class="mt-3 space-y-2 max-h-48 overflow-auto"></ul>
+      </div>
+
+      <div class="p-4 bg-slate-800 rounded-lg">
+        <h3 class="font-medium">Scan History</h3>
+        <ul id="historyList" class="mt-3 space-y-2 max-h-48 overflow-auto"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="max-w-6xl mx-auto p-4 text-center text-sm text-slate-400">© 2025 ShadowWatch</footer>
+
+  <script>
+  // dashboard front-end logic (simple)
+  const userEmailEl = document.getElementById('userEmail');
+  const user = JSON.parse(sessionStorage.getItem('shadow_user') || 'null');
+  if (user && user.email) userEmailEl.textContent = user.email;
+
+  document.getElementById('logout').addEventListener('click', () => {
+    sessionStorage.removeItem('shadow_user');
+    window.location.href = 'index.html';
+  });
+
+  function setLevel(level) {
+    const el = document.getElementById('level');
+    el.textContent = level;
+    el.className = level === 'Critical' ? 'text-red-400' : (level === 'Moderate' ? 'text-amber-300' : 'text-green-300');
+  }
+
+  function randomLevel() {
+    const r = Math.random();
+    if (r > 0.75) return 'Critical';
+    if (r > 0.4) return 'Moderate';
+    return 'Low';
+  }
+
+  // Run a single check (calls backend /api/daily-check optionally)
+  document.getElementById('runCheck').addEventListener('click', async () => {
+    setLevel('Checking...');
+    try {
+      const res = await fetch('/api/daily-check', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ manual: true, email: user?.email })});
+      const data = await res.json();
+      setLevel(data.level);
+      prependHistory(data);
+    } catch (err) {
+      console.error(err);
+      setLevel(randomLevel()); // fallback
+    }
+  });
+
+  // Quick scan simulation
+  document.getElementById('scanBtn').addEventListener('click', () => {
+    const email = document.getElementById('scanEmail').value.trim();
+    if (!email) return alert('Enter email');
+    const breaches = Math.random() > 0.6 ? Math.floor(Math.random()*4)+1 : 0;
+    const li = document.createElement('li');
+    li.className = 'p-3 bg-slate-900 rounded';
+    li.innerHTML = `<strong>${email}</strong> — ${breaches ? breaches+' breaches found' : 'No breaches found'} <div class="text-xs text-slate-400">${new Date().toLocaleString()}</div>`;
+    document.getElementById('alertsList').prepend(li);
+    // optionally store to backend /api/leaks
+  });
+
+  // history functions
+  function prependHistory(obj) {
+    const li = document.createElement('li');
+    li.className = 'p-3 bg-slate-900 rounded';
+    li.innerHTML = `<div class="flex justify-between"><div><strong>${obj.email||user?.email||'guest'}</strong> — ${obj.level}</div><div class="text-xs text-slate-400">${new Date(obj.ts||Date.now()).toLocaleString()}</div></div>`;
+    document.getElementById('historyList').prepend(li);
+  }
+
+  // fetch recent history from backend
+  async function loadHistory() {
+    try {
+      const res = await fetch('/api/daily-checks');
+      const arr = await res.json();
+      arr.forEach(item => prependHistory(item));
+      if (arr.length) setLevel(arr[0].level);
+    } catch (err) {
+      console.log('no backend history', err);
+      setLevel('Low');
+    }
+  }
+
+  loadHistory();
+  </script>
+</body>
+</html>
